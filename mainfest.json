@@ -1,7 +1,8 @@
 {
   "name": "포항세영누수탐지 누수량계산기",
   "short_name": "누수계산기",
-  "start_url": "./index.html",
+  "start_url": "/leak/",
+  "scope": "/leak/",
   "display": "standalone",
   "background_color": "#0284c7",
   "theme_color": "#0284c7",
@@ -9,12 +10,14 @@
     {
       "src": "https://cdn-icons-png.flaticon.com/512/3105/3105807.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "https://cdn-icons-png.flaticon.com/512/3105/3105807.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
