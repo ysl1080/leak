@@ -11,9 +11,14 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#0284c7">
 
-  <!-- 인라인 웹앱 매니페스트 (주소창/툴바 완전 박멸) -->
-  <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%ED%8F%AC%ED%95%AD%EC%84%B8%EC%98%81%EB%88%84%EC%88%98%ED%83%90%EC%A7%80%20%EB%88%84%EC%88%98%EB%9F%89%EA%B3%84%EC%82%B0%EA%B8%B0%22%2C%22short_name%22%3A%22%EB%88%84%EC%88%98%EA%B3%84%EC%82%B0%EA%B8%B0%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230284c7%22%2C%22theme_color%22%3A%22%230284c7%22%7D">
-
+ <!-- 정식 웹앱 매니페스트 & 서비스워커 연결 -->
+  <link rel="manifest" href="manifest.json">
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
+  
   <title>포항세영누수탐지</title>
   
   <!-- 이미지 즉석 저장 엔진 -->
