@@ -17,7 +17,7 @@
     }
   </script>
 
-  <title>포항세영누수탐지 - 누수량 계산기</title>
+  <title>포항세영누수탐지 - 누수량 및 포항요금 정밀 계산기</title>
   
   <!-- 이미지 즉석 저장 엔진 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -52,7 +52,7 @@
       position: relative;
     }
 
-    /* 앱 상단 헤더 */
+    /* 상단 헤더 */
     .app-header {
       background: #0284c7;
       color: #ffffff;
@@ -91,7 +91,7 @@
       border-radius: 20px;
     }
 
-    /* 본체 스크롤 컨테이너 */
+    /* 스크롤 본문 */
     .app-content {
       flex: 1;
       padding: 14px;
@@ -101,7 +101,6 @@
       padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 20px);
     }
 
-    /* 섹션 카드 */
     .sec-card {
       background: #ffffff;
       border-radius: 16px;
@@ -161,7 +160,6 @@
       box-shadow: 0 1px 4px rgba(0,0,0,0.08);
     }
 
-    /* 안내 문구 */
     .sub-tip {
       font-size: 11.5px;
       padding: 7px 10px;
@@ -177,7 +175,7 @@
       border: 1px solid #fef08a;
     }
 
-    /* 선택 카드 리스트 */
+    /* 라디오 목록 */
     .radio-list {
       display: flex;
       flex-direction: column;
@@ -251,7 +249,7 @@
     .b-red { background: #fee2e2; color: #b91c1c; }
     .b-purple { background: #f3e8ff; color: #7e22ce; }
 
-    /* 바퀴 수 세그먼트 (미세누수 1/4, 반바퀴 포함) */
+    /* 바퀴 수 세그먼트 (1/4바퀴, 반바퀴 포함) */
     .rev-row {
       background: #f8fafc;
       padding: 10px 12px;
@@ -308,7 +306,7 @@
       color: #ffffff;
     }
 
-    /* 타이머 디스플레이 */
+    /* 타이머 */
     .digital-timer {
       background: #0a1120;
       border-radius: 14px;
@@ -334,7 +332,6 @@
       color: #38bdf8;
     }
 
-    /* 스톱워치 버튼 */
     .btn-row {
       display: flex;
       gap: 8px;
@@ -377,7 +374,6 @@
       background: #f1f5f9;
     }
 
-    /* 입력 박스 */
     .sec-input-wrap {
       position: relative;
     }
@@ -403,7 +399,7 @@
       font-size: 14px;
     }
 
-    /* 액션 버튼 */
+    /* 실행 버튼 */
     .main-btn-row {
       display: flex;
       gap: 8px;
@@ -446,43 +442,23 @@
       background: #f1f5f9;
     }
 
-    /* 단가 아코디언 */
-    .acc-wrap {
-      border: 1px solid #e2e8f0;
+    /* 포항 요금 안내 배너 */
+    .pohang-note-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
       border-radius: 12px;
-      background: #ffffff;
-      overflow: hidden;
-    }
-    .acc-header {
       padding: 10px 14px;
-      font-size: 12px;
-      font-weight: 600;
-      color: #475569;
+      font-size: 11.5px;
+      color: #166534;
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      background: #f8fafc;
     }
-    .acc-content {
-      padding: 12px 14px;
-      display: none;
-      border-top: 1px solid #e2e8f0;
-    }
-    .acc-content.show {
-      display: block;
-    }
-    .slider-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 6px;
-    }
-    .slider-row input[type="range"] {
-      flex: 1;
+    .pohang-note-box b {
+      color: #15803d;
     }
 
-    /* 결과 카드 */
+    /* 결과 카드 (캡처용) */
     .res-wrapper {
       display: none;
       flex-direction: column;
@@ -553,8 +529,31 @@
       padding: 12px;
     }
     .res-box.main .res-num {
-      font-size: 24px;
+      font-size: 25px;
       color: #16a34a;
+    }
+
+    /* 요금 세부 내역 박스 */
+    .bill-breakdown {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      font-size: 12px;
+    }
+    .bill-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      color: #475569;
+    }
+    .bill-row.total {
+      border-top: 1px dashed #cbd5e1;
+      margin-top: 4px;
+      padding-top: 6px;
+      font-weight: 800;
+      color: #0f172a;
     }
 
     .analogy-box {
@@ -642,10 +641,10 @@
     .modal-card {
       background: #ffffff;
       border-radius: 16px;
-      max-width: 420px;
+      max-width: 440px;
       width: 100%;
       padding: 18px;
-      max-height: 80vh;
+      max-height: 85vh;
       overflow-y: auto;
     }
     .modal-head {
@@ -681,7 +680,6 @@
 <body>
 
 <div class="app-screen">
-  <!-- 스마트폰 상단 헤더 -->
   <header class="app-header">
     <div class="app-header-left">
       <span class="app-name">포항세영누수탐지</span>
@@ -700,20 +698,19 @@
         </h2>
       </div>
 
-      <!-- 구경 탭 -->
       <div class="seg-tabs">
         <button id="tHome" class="seg-btn active" onclick="switchMeter('home')">가정용 (15~25A)</button>
         <button id="tLarge" class="seg-btn" onclick="switchMeter('large')">상가·대형 (32~50A+)</button>
       </div>
 
       <div id="tipBox" class="sub-tip">
-        🏠 가정용 표준: 4번째 빨간 침(1L) 측정 추천
+        🏠 가정용 표준: 4번째 빨간 침(1L) 측정 추천 (포항 가정용 누진요율 자동적용)
       </div>
 
       <div id="dialList" class="radio-list"></div>
     </section>
 
-    <!-- STEP 2. 스톱워치 측정 (1/4바퀴, 반바퀴 탑재) -->
+    <!-- STEP 2. 스톱워치 측정 -->
     <section class="sec-card">
       <div class="sec-head">
         <h2 class="sec-title">
@@ -722,11 +719,10 @@
         <span style="font-size:11.5px; color:#94a3b8; font-weight:700;" id="timerStatus">대기</span>
       </div>
 
-      <!-- 측정 모드 5종 선택 칩 -->
       <div class="rev-row">
         <div class="rev-title-bar">
-          <span class="rev-label">🔄 측정 회전수 (느린 누수는 1/4 or 반바퀴)</span>
-          <span id="revBadgeNote" style="font-size:11px; color:#0284c7; font-weight:bold;">표준 (1바퀴)</span>
+          <span class="rev-label">🔄 측정 회전수 (미세누수는 1/4 or 반바퀴)</span>
+          <span id="revBadgeNote" style="font-size:11px; color:#0284c7; font-weight:bold;">1바퀴 (표준)</span>
         </div>
         <div class="rev-btn-wrap">
           <button class="rev-pill fine" onclick="setRevs(0.25, '1/4바퀴 (90°)', '바늘이 12시에서 3시 방향까지 돌 때 정지 (초미세 누수)', this)">1/4바퀴</button>
@@ -737,7 +733,6 @@
         </div>
       </div>
 
-      <!-- 타이머 -->
       <div class="digital-timer">
         <div class="timer-val" id="timeDisp">00:00.00</div>
         <div class="timer-subtext" id="guideText">
@@ -761,33 +756,20 @@
     <!-- 계산 & 근거설명 버튼 -->
     <div class="main-btn-row">
       <button class="btn-calc" onclick="calculate()">
-        🧮 누수량 계산하기
+        🧮 누수량 및 포항요금 계산하기
       </button>
       <button class="btn-basis" onclick="openModal()">
         💡 계산 근거
       </button>
     </div>
 
-    <!-- 단가 설정 (옵션) -->
-    <div class="acc-wrap">
-      <div class="acc-header" onclick="toggleAcc()">
-        <span>⚙️ 수도 요금 단가 설정 (기본 톤당 1,300원)</span>
-        <span id="accArrow">▼</span>
-      </div>
-      <div id="accBody" class="acc-content">
-        <div style="font-size:11.5px; color:#64748b; margin-bottom:6px;">
-          * 포항시 가정용 수도요금 기준 (상·하수도/물이용부담금 포함 평균 톤당 약 1,300원)
-        </div>
-        <div class="slider-row">
-          <input type="range" id="priceRange" min="800" max="2500" step="50" value="1300" oninput="updateRate(this.value)">
-          <div style="font-weight:800; font-size:13px; min-width:85px; text-align:right;">
-            톤당 <span id="rateLabel">1,300</span>원
-          </div>
-        </div>
-      </div>
+    <!-- 포항시 공식 요율 적용 안내 배너 -->
+    <div class="pohang-note-box">
+      <span>🏛️ <b>포항시 수도요금 공식 누진 산정</b></span>
+      <span>상수도 + 하수도누진 + 부담금 연동</span>
     </div>
 
-    <!-- 결과 리포트 (캡처 및 전송) -->
+    <!-- 결과 리포트 -->
     <div id="resWrap" class="res-wrapper">
       <div id="captureTarget" class="res-capture-card">
         <div class="res-head">
@@ -815,9 +797,29 @@
             <div class="res-unit">톤 (m³)</div>
           </div>
           <div class="res-box main">
-            <div class="res-lbl">한 달(30일) 예상 추가 수도요금</div>
+            <div class="res-lbl">한 달(30일) 예상 추가 수도요금 (포항시 누진반영)</div>
             <div class="res-num" id="rCost">0</div>
             <div class="res-unit" id="rCostSub" style="margin-top:2px;">한 달 누적 약 0 톤 손실</div>
+          </div>
+        </div>
+
+        <!-- 요금 세부 내역 -->
+        <div class="bill-breakdown">
+          <div class="bill-row">
+            <span>상수도 요금 (기본료 포함)</span>
+            <span id="billWater">0원</span>
+          </div>
+          <div class="bill-row">
+            <span>하수도 요금 (누진 적용)</span>
+            <span id="billSewer">0원</span>
+          </div>
+          <div class="bill-row">
+            <span>낙동강수계 물이용부담금(톤당 170원)</span>
+            <span id="billBasin">0원</span>
+          </div>
+          <div class="bill-row total">
+            <span>합계 (실효단가 톤당 약 <span id="billAvgRate">0</span>원)</span>
+            <span id="billTotal" style="color:#16a34a;">0원</span>
           </div>
         </div>
 
@@ -857,41 +859,44 @@
 <div id="bModal" class="modal-backdrop" onclick="closeModal(event)">
   <div class="modal-card" onclick="event.stopPropagation()">
     <div class="modal-head">
-      <span>💡 누수량 계산 공식 및 근거</span>
+      <span>💡 누수량 및 포항시 요금 공식 근거</span>
       <button class="modal-x" onclick="closeModal()">✕</button>
     </div>
     <div style="font-size:12.5px; color:#475569; line-height:1.6;">
-      <b style="color:#0284c7;">1. 수도계량기 회전침 표준 규격 (KS)</b><br>
+      <b style="color:#0284c7;">1. 수도계량기 회전침 규격</b><br>
       • ×0.0001 m³ (4번째 빨간 침) = <b>정확히 1.0 리터(L)</b><br>
-      • ×0.001 m³ (3번째 빨간 침) = <b>정확히 10.0 리터(L)</b><br>
-      • ×0.01 m³ (2번째 빨간 침) = <b>정확히 100.0 리터(L)</b><br><br>
+      • ×0.001 m³ (3번째 빨간 침) = <b>정확히 10.0 리터(L)</b><br><br>
 
-      <b style="color:#0284c7;">2. 미세 누수 부분 회전 산출 공식</b>
+      <b style="color:#0284c7;">2. 포항시 공식 수도요금 산정 기준</b>
       <div class="basis-calc-box">
-        • 1/4바퀴(0.25회전) 측정 시: 1회전 소요시간 = 측정시간 × 4<br>
-        • 반바퀴(0.5회전) 측정 시: 1회전 소요시간 = 측정시간 × 2<br>
-        • 초당 누수량(L/s) = 기준 용량(L) ÷ 1회전 환산시간(초)<br>
-        • 1시간 누수량(L/h) = 초당 누수량 × 3,600초<br>
-        • 하루 누수량(톤) = (1시간 누수량 × 24) ÷ 1,000<br>
-        • 한 달 누수량(톤) = 하루 누수량 × 30일
+        <b>[가정용 기준 요율]</b><br>
+        • 상수도: 톤당 625원 + 계량기 기본료(15A: 990원)<br>
+        • 하수도 (누진제):<br>
+          - 1~20톤: 톤당 370원<br>
+          - 21~30톤: 톤당 670원<br>
+          - 31톤 초과: <b>톤당 1,140원 (최고 누진 폭탄)</b><br>
+        • 물이용부담금: 톤당 170원 (낙동강수계 고정)<br>
+        <span style="color:#c2410c;">※ 341톤 대량 누수 시 하수도 최고 누진세로 인해 실효단가가 톤당 약 1,935~1,950원으로 급등하여 약 66만 원이 발생합니다.</span>
       </div>
-      <b style="color:#0284c7;">3. 예상 추가 요금 산정</b><br>
-      한 달 누수량에 포항시 상·하수도 단가(기본 1,300원/톤)를 곱하여 산출됩니다.
+
+      <b style="color:#0284c7;">3. 미세 누수 부분 회전 환산 공식</b>
+      <div class="basis-calc-box">
+        • 1/4바퀴(0.25회전) 소요시간 × 4 = 1회전 시간<br>
+        • 반바퀴(0.5회전) 소요시간 × 2 = 1회전 시간<br>
+        • 초당 누수량(L/s) = 기준 용량(L) ÷ 1회전 환산시간(초)
+      </div>
     </div>
     <button class="btn-save-img" style="margin-top:14px; height:42px;" onclick="closeModal()">확인 완료</button>
   </div>
 </div>
 
 <script>
-  // 날짜
   const now = new Date();
   document.getElementById('headDate').innerText = `${now.getMonth()+1}.${now.getDate()}`;
 
-  // 모달 제어
   function openModal() { document.getElementById('bModal').classList.add('open'); }
   function closeModal() { document.getElementById('bModal').classList.remove('open'); }
 
-  // 회전수/부분회전 제어
   let curRevs = 1.0;
   let curRevTitle = "1바퀴 (표준)";
 
@@ -905,10 +910,9 @@
     document.getElementById('guideText').innerHTML = guide;
   }
 
-  // 계량기 구경별 옵션
   const presets = {
     home: {
-      tip: "🏠 가정용 표준: 4번째 빨간 침(1L) 측정 추천",
+      tip: "🏠 가정용 표준: 4번째 빨간 침(1L) 측정 추천 (포항 가정용 누진요율 자동적용)",
       isLarge: false,
       opts: [
         { vol: 1.0, label: "×0.0001 m³ / 4번째 자리", sub: "1바퀴 = 1.0 L (1리터)", tag: "일반 누수", tagClass: "b-blue", def: true },
@@ -917,7 +921,7 @@
       ]
     },
     large: {
-      tip: "🏢 상가·대형: 4번째 자리(1L)가 없으므로 ×0.001(10L) 침부터 측정",
+      tip: "🏢 상가·대형: 4번째 자리(1L)가 없으므로 ×0.001(10L) 침부터 측정 (포항 일반용 요율)",
       isLarge: true,
       opts: [
         { vol: 10.0, label: "×0.001 m³ / 최하위 침", sub: "1바퀴 = 10.0 L (10리터)", tag: "대형 기본침", tagClass: "b-blue", def: true },
@@ -929,9 +933,11 @@
 
   let curVol = 1.0;
   let curDialName = "가정용 15A / ×0.0001 m³ (1L)";
+  let isLargeMode = false;
 
   function renderList(type) {
     const p = presets[type];
+    isLargeMode = p.isLarge;
     const tipBox = document.getElementById('tipBox');
     tipBox.className = `sub-tip ${p.isLarge ? 'large' : ''}`;
     tipBox.innerText = p.tip;
@@ -973,18 +979,6 @@
     renderList(type);
   }
   renderList('home');
-
-  // 단가 아코디언
-  function toggleAcc() {
-    const b = document.getElementById('accBody');
-    const a = document.getElementById('accArrow');
-    const isShow = b.classList.contains('show');
-    b.classList.toggle('show', !isShow);
-    a.innerText = isShow ? '▼' : '▲';
-  }
-  function updateRate(v) {
-    document.getElementById('rateLabel').innerText = Number(v).toLocaleString();
-  }
 
   // 스톱워치
   let timerId = null, startT = 0, elapsedT = 0, isRun = false;
@@ -1036,7 +1030,58 @@
     btn.classList.remove('running');
   }
 
-  // 계산
+  // ==========================================================
+  // 포항시 공식 상·하수도 누진 계산 엔진
+  // ==========================================================
+  function calcPohangBill(tons, isLarge) {
+    if (tons <= 0) return { water: 0, sewer: 0, basin: 0, total: 0, avgRate: 0 };
+
+    let waterCost = 0;
+    let sewerCost = 0;
+    const basinRate = 170; // 물이용부담금 (톤당 170원 고정)
+    const basinCost = Math.round(tons * basinRate);
+
+    if (!isLarge) {
+      // 1. 가정용 요율
+      const baseMeter = 990; // 15A 기본요금
+      const waterRate = 625; // 상수도 가정용 단가 (톤당 625원)
+      waterCost = baseMeter + Math.round(tons * waterRate);
+
+      // 하수도 3단계 누진제
+      if (tons <= 20) {
+        sewerCost = Math.round(tons * 370);
+      } else if (tons <= 30) {
+        sewerCost = Math.round((20 * 370) + ((tons - 20) * 670));
+      } else {
+        sewerCost = Math.round((20 * 370) + (10 * 670) + ((tons - 30) * 1140));
+      }
+    } else {
+      // 2. 일반용(상가·대형) 요율
+      const baseMeter = 8350; // 40A 기본요금
+      waterCost = baseMeter + Math.round(tons * 1150);
+
+      if (tons <= 100) {
+        sewerCost = Math.round(tons * 800);
+      } else if (tons <= 300) {
+        sewerCost = Math.round((100 * 800) + ((tons - 100) * 1100));
+      } else {
+        sewerCost = Math.round((100 * 800) + (200 * 1100) + ((tons - 300) * 1450));
+      }
+    }
+
+    const total = waterCost + sewerCost + basinCost;
+    const avgRate = Math.round(total / tons);
+
+    return {
+      water: waterCost,
+      sewer: sewerCost,
+      basin: basinCost,
+      total: total,
+      avgRate: avgRate
+    };
+  }
+
+  // 계산 실행
   let reportData = null;
   function calculate() {
     const secVal = parseFloat(document.getElementById('secInput').value);
@@ -1045,16 +1090,16 @@
       return;
     }
 
-    // 1회전 소요시간으로 정밀 역산
     const secPerRev = secVal / curRevs;
-    const rate = parseInt(document.getElementById('priceRange').value, 10) || 1300;
 
     const lps = curVol / secPerRev;
     const lph = lps * 3600;
     const lpd = lph * 24;
     const tpd = lpd / 1000;
     const tpm = tpd * 30;
-    const costMonth = Math.round(tpm * rate);
+
+    // 포항시 누진세 계산 적용
+    const bill = calcPohangBill(tpm, isLargeMode);
 
     const bDay = Math.round(lpd / 2.0);
     const cMin = Math.round((lph / 60) / 0.18);
@@ -1066,7 +1111,6 @@
     document.getElementById('repDate').innerText = dateStr;
     document.getElementById('repDial').innerText = curDialName;
 
-    // 측정 정보 상세 텍스트
     let secDetail = "";
     if (curRevs < 1.0) {
       secDetail = `${curRevTitle} ${secVal.toFixed(1)}초 소요 (1회전 환산: 약 ${secPerRev.toFixed(1)}초)`;
@@ -1079,8 +1123,15 @@
 
     document.getElementById('rHour').innerText = lph.toLocaleString('ko-KR', { maximumFractionDigits: 1 });
     document.getElementById('rDay').innerText = tpd.toFixed(2);
-    document.getElementById('rCost').innerText = costMonth.toLocaleString('ko-KR') + "원";
+    document.getElementById('rCost').innerText = bill.total.toLocaleString('ko-KR') + "원";
     document.getElementById('rCostSub').innerText = `한 달 누적 약 ${tpm.toFixed(1)} 톤(m³) 손실`;
+
+    // 세부 청구내역 표시
+    document.getElementById('billWater').innerText = bill.water.toLocaleString('ko-KR') + "원";
+    document.getElementById('billSewer').innerText = bill.sewer.toLocaleString('ko-KR') + "원";
+    document.getElementById('billBasin').innerText = bill.basin.toLocaleString('ko-KR') + "원";
+    document.getElementById('billAvgRate').innerText = bill.avgRate.toLocaleString('ko-KR');
+    document.getElementById('billTotal').innerText = bill.total.toLocaleString('ko-KR') + "원";
 
     document.getElementById('aBottle').innerText = bDay.toLocaleString();
     document.getElementById('aCup').innerText = cMin.toLocaleString();
@@ -1097,7 +1148,11 @@
       lph: lph.toFixed(1),
       tpd: tpd.toFixed(2),
       tpm: tpm.toFixed(1),
-      cost: costMonth.toLocaleString('ko-KR'),
+      cost: bill.total.toLocaleString('ko-KR'),
+      avgRate: bill.avgRate.toLocaleString('ko-KR'),
+      waterBill: bill.water.toLocaleString('ko-KR'),
+      sewerBill: bill.sewer.toLocaleString('ko-KR'),
+      basinBill: bill.basin.toLocaleString('ko-KR'),
       bDay: bDay.toLocaleString(),
       cMin: cMin.toLocaleString()
     };
@@ -1122,7 +1177,7 @@
   // 텍스트 복사
   function copyText() {
     if (!reportData) return;
-    const msg = `[포항세영누수탐지 누수량 계산 결과]
+    const msg = `[포항세영누수탐지 누수량 분석 리포트]
 --------------------------------
 ■ 계량기 회전 측정 분석
 - 측정일시: ${reportData.date}
@@ -1132,8 +1187,14 @@
 - 하루 누수량: 약 ${reportData.tpd} 톤 (m³)
 - 한 달 예상 누수량: 약 ${reportData.tpm} 톤
 
-■ 예상 손실 및 피해 환산
-- 한 달 예상 추가 수도요금: 약 ${reportData.cost}원 상당
+■ 포항시 기준 예상 추가 수도요금 (누진세 반영)
+- 예상 총 청구금액: 약 ${reportData.cost}원
+  * 상수도: 약 ${reportData.waterBill}원
+  * 하수도(누진): 약 ${reportData.sewerBill}원
+  * 물이용부담금: 약 ${reportData.basinBill}원
+  * 실효 평균 단가: 톤당 약 ${reportData.avgRate}원
+
+■ 체감 피해 환산
 - 2L 생수병 기준: 하루 약 ${reportData.bDay}병 누출
 - 일반 종이컵 기준: 1분당 약 ${reportData.cMin}잔 분량 누출
 
