@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  
+  <!-- 진짜 앱(전체화면 Standalone) 설정 -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="누수계산기">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0284c7">
+
+  <!-- 인라인 웹앱 매니페스트 (주소창/툴바 완전 박멸) -->
+  <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%ED%8F%AC%ED%95%AD%EC%84%B8%EC%98%81%EB%88%84%EC%88%98%ED%83%90%EC%A7%80%20%EB%88%84%EC%88%98%EB%9F%89%EA%B3%84%EC%82%B0%EA%B8%B0%22%2C%22short_name%22%3A%22%EB%88%84%EC%88%98%EA%B3%84%EC%82%B0%EA%B8%B0%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230284c7%22%2C%22theme_color%22%3A%22%230284c7%22%7D">
+
+  <title>포항세영누수탐지</title>
+  
+  <!-- 이미지 즉석 저장 엔진 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", Roboto, sans-serif;
+    }
+
+    /* 브라우저 고무줄 스크롤 방지 & 전체화면 레이아웃 */
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: #f1f5f9;
+      color: #0f172a;
+      overflow-x: hidden;
+      overscroll-behavior-y: none;
+    }
+
+    .app-screen {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      max-width: 480px;
+      margin: 0 auto;
+      background-color: #f8fafc;
+      position: relative;
+    }
+
+    /* 앱 최상단 네이티브 바 (노치/카메라 구멍 안전영역 자동계산) */
+    .app-header {
+      background: #0284c7;
+      color: #ffffff;
+      padding-top: env(safe-area-inset-top, 14px);
+      padding-bottom: 12px;
+      padding-left: 18px;
+      padding-right: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .app-header-left {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .app-name {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .app-tag {
+      font-size: 11px;
+      color: #bae6fd;
+      font-weight: 600;
+    }
+    .header-badge {
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(255,255,255,0.2);
+      padding: 3px 8px;
+      border-radius: 20px;
+    }
+
+    /* 본체 스크롤 컨테이너 */
+    .app-content {
+      flex: 1;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 20px);
+    }
+
+    /* 섹션 카드 */
+    .sec-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .sec-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .sec-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .num-dot {
+      width: 20px;
+      height: 20px;
+      background: #e0f2fe;
+      color: #0284c7;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    /* 구경 탭 */
+    .seg-tabs {
+      display: flex;
+      background: #f1f5f9;
+      padding: 3px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    .seg-btn {
+      flex: 1;
+      height: 36px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #64748b;
+      background: transparent;
+      cursor: pointer;
+    }
+    .seg-btn.active {
+      background: #ffffff;
+      color: #0284c7;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    /* 눈금 안내 */
+    .sub-tip {
+      font-size: 11.5px;
+      padding: 7px 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      background: #f0fdf4;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+    .sub-tip.large {
+      background: #fefce8;
+      color: #854d0e;
+      border: 1px solid #fef08a;
+    }
+
+    /* 선택 카드 리스트 */
+    .radio-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .radio-item {
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 11px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+    .radio-item.active {
+      border-color: #0284c7;
+      background-color: #f0f9ff;
+    }
+    .radio-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .radio-ring {
+      width: 18px;
+      height: 18px;
+      border: 2px solid #cbd5e1;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .radio-item.active .radio-ring {
+      border-color: #0284c7;
+    }
+    .radio-dot {
+      width: 9px;
+      height: 9px;
+      background: #0284c7;
+      border-radius: 50%;
+      display: none;
+    }
+    .radio-item.active .radio-dot {
+      display: block;
+    }
+    .item-label {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .item-sub {
+      font-size: 11.5px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+    .item-sub strong {
+      color: #0284c7;
+    }
+    .badge-tag {
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+    .b-blue { background: #bae6fd; color: #0369a1; }
+    .b-orange { background: #ffedd5; color: #c2410c; }
+    .b-red { background: #fee2e2; color: #b91c1c; }
+    .b-purple { background: #f3e8ff; color: #7e22ce; }
+
+    /* 바퀴 수 세그먼트 */
+    .rev-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f8fafc;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      margin-bottom: 10px;
+    }
+    .rev-btn-wrap {
+      display: flex;
+      gap: 5px;
+    }
+    .rev-pill {
+      padding: 5px 12px;
+      border-radius: 16px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      font-size: 12px;
+      font-weight: 700;
+      color: #475569;
+      cursor: pointer;
+    }
+    .rev-pill.active {
+      background: #0284c7;
+      border-color: #0284c7;
+      color: #ffffff;
+    }
+
+    /* 타이머 디스플레이 */
+    .digital-timer {
+      background: #0a1120;
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      color: #ffffff;
+      margin-bottom: 10px;
+    }
+    .timer-val {
+      font-size: 44px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: #38bdf8;
+      letter-spacing: 1px;
+      text-shadow: 0 0 14px rgba(56, 189, 248, 0.4);
+    }
+    .timer-subtext {
+      font-size: 11.5px;
+      color: #cbd5e1;
+      margin-top: 4px;
+    }
+
+    /* 스톱워치 버튼 */
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .btn-watch {
+      flex: 2;
+      height: 50px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 800;
+      color: #ffffff;
+      background: #0284c7;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-watch:active {
+      background: #0369a1;
+      transform: scale(0.99);
+    }
+    .btn-watch.running {
+      background: #e11d48;
+    }
+    .btn-re {
+      flex: 1;
+      height: 50px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #475569;
+      background: #ffffff;
+      cursor: pointer;
+    }
+    .btn-re:active {
+      background: #f1f5f9;
+    }
+
+    /* 입력 박스 */
+    .sec-input-wrap {
+      position: relative;
+    }
+    .sec-input {
+      width: 100%;
+      height: 44px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 0 46px 0 12px;
+      font-size: 16px;
+      font-weight: 800;
+      color: #0f172a;
+      background-color: #f8fafc;
+      user-select: auto;
+      -webkit-user-select: auto;
+    }
+    .sec-input-unit {
+      position: absolute;
+      right: 14px;
+      top: 11px;
+      font-weight: 700;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    /* 액션 버튼들 */
+    .main-btn-row {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-calc {
+      flex: 2.2;
+      height: 50px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+    }
+    .btn-calc:active {
+      transform: scale(0.99);
+    }
+    .btn-basis {
+      flex: 1;
+      height: 50px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 14px;
+      background: #ffffff;
+      color: #334155;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .btn-basis:active {
+      background: #f1f5f9;
+    }
+
+    /* 단가 아코디언 */
+    .acc-wrap {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #ffffff;
+      overflow: hidden;
+    }
+    .acc-header {
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #475569;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      background: #f8fafc;
+    }
+    .acc-content {
+      padding: 12px 14px;
+      display: none;
+      border-top: 1px solid #e2e8f0;
+    }
+    .acc-content.show {
+      display: block;
+    }
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .slider-row input[type="range"] {
+      flex: 1;
+    }
+
+    /* 결과 카드 (캡처용) */
+    .res-wrapper {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .res-capture-card {
+      background: #ffffff;
+      border: 1.5px solid #0284c7;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.1);
+    }
+    .res-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid #e0f2fe;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+    .res-brand {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0369a1;
+    }
+    .res-sub {
+      font-size: 10.5px;
+      color: #64748b;
+    }
+    .res-date {
+      font-size: 11px;
+      color: #475569;
+      font-weight: 600;
+    }
+
+    .res-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .res-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+    }
+    .res-lbl {
+      font-size: 10.5px;
+      color: #64748b;
+      margin-bottom: 2px;
+    }
+    .res-num {
+      font-size: 19px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .res-unit {
+      font-size: 11px;
+      color: #64748b;
+      font-weight: 600;
+    }
+    .res-box.main {
+      grid-column: span 2;
+      background: #f0fdf4;
+      border-color: #86efac;
+      padding: 12px;
+    }
+    .res-box.main .res-num {
+      font-size: 24px;
+      color: #16a34a;
+    }
+
+    .analogy-box {
+      background: #f0f9ff;
+      border: 1px dashed #38bdf8;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+    }
+    .analogy-item {
+      font-size: 12.5px;
+      color: #334155;
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      border-bottom: 1px solid #e0f2fe;
+    }
+    .analogy-item:last-child {
+      border-bottom: none;
+    }
+    .analogy-item b {
+      color: #0284c7;
+    }
+
+    .res-foot {
+      border-top: 1px solid #f1f5f9;
+      padding-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11.5px;
+    }
+    .res-tel {
+      color: #0284c7;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    /* 하단 실행 버튼 */
+    .btn-save-img {
+      width: 100%;
+      height: 48px;
+      background: #0284c7;
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      font-size: 14.5px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-copy-txt {
+      width: 100%;
+      height: 44px;
+      background: #0f172a;
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    /* 모달 */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(2px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-backdrop.open {
+      display: flex;
+    }
+    .modal-card {
+      background: #ffffff;
+      border-radius: 16px;
+      max-width: 420px;
+      width: 100%;
+      padding: 18px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+      font-weight: 800;
+      font-size: 15px;
+    }
+    .modal-x {
+      background: #f1f5f9;
+      border: none;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .basis-calc-box {
+      background: #f8fafc;
+      border-left: 3px solid #0284c7;
+      padding: 8px 10px;
+      border-radius: 0 6px 6px 0;
+      font-size: 11.5px;
+      font-family: monospace;
+      margin: 6px 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-screen">
+  <!-- 스마트폰 상단 네이티브 스타일 헤더 -->
+  <header class="app-header">
+    <div class="app-header-left">
+      <span class="app-name">포항세영누수탐지</span>
+      <span class="app-tag">누수량 계산기</span>
+    </div>
+    <div class="header-badge" id="headDate"></div>
+  </header>
+
+  <!-- 메인 스크롤 콘텐츠 -->
+  <main class="app-content">
+
+    <!-- STEP 1. 계량기 구경 및 침 선택 -->
+    <section class="sec-card">
+      <div class="sec-head">
+        <h2 class="sec-title">
+          <span class="num-dot">1</span> 계량기 규격 및 기준 침 선택
+        </h2>
+      </div>
+
+      <!-- 구경 탭 -->
+      <div class="seg-tabs">
+        <button id="tHome" class="seg-btn active" onclick="switchMeter('home')">가정용 (15~25A)</button>
+        <button id="tLarge" class="seg-btn" onclick="switchMeter('large')">상가·대형 (32~50A+)</button>
+      </div>
+
+      <div id="tipBox" class="sub-tip">
+        🏠 가정용 표준: 4번째 빨간 침(1L) 측정 추천
+      </div>
+
+      <div id="dialList" class="radio-list"></div>
+    </section>
+
+    <!-- STEP 2. 스톱워치 측정 -->
+    <section class="sec-card">
+      <div class="sec-head">
+        <h2 class="sec-title">
+          <span class="num-dot">2</span> 회전 시간 측정 (스톱워치)
+        </h2>
+        <span style="font-size:11.5px; color:#94a3b8; font-weight:700;" id="timerStatus">대기</span>
+      </div>
+
+      <!-- 회전수 선택 -->
+      <div class="rev-row">
+        <span style="font-size:12.5px; font-weight:700; color:#334155;">🔄 측정 바퀴 수</span>
+        <div class="rev-btn-wrap">
+          <button class="rev-pill active" onclick="setRevs(1, this)">1바퀴</button>
+          <button class="rev-pill" onclick="setRevs(3, this)">3바퀴(정밀)</button>
+          <button class="rev-pill" onclick="setRevs(5, this)">5바퀴(고속)</button>
+        </div>
+      </div>
+
+      <!-- 타이머 -->
+      <div class="digital-timer">
+        <div class="timer-val" id="timeDisp">00:00.00</div>
+        <div class="timer-subtext" id="guideText">
+          바늘이 0에서 시작해 <b>정확히 1바퀴</b> 돌 때 정지
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button id="btnTimer" class="btn-watch" onclick="toggleTimer()">
+          ▶ 스톱워치 시작
+        </button>
+        <button class="btn-re" onclick="resetTimer()">↺ 리셋</button>
+      </div>
+
+      <div class="sec-input-wrap">
+        <input type="number" id="secInput" class="sec-input" placeholder="스톱워치 또는 직접입력 (예: 25.4)" step="0.1">
+        <span class="sec-input-unit">초</span>
+      </div>
+    </section>
+
+    <!-- 계산 & 근거설명 버튼 -->
+    <div class="main-btn-row">
+      <button class="btn-calc" onclick="calculate()">
+        🧮 누수량 계산하기
+      </button>
+      <button class="btn-basis" onclick="openModal()">
+        💡 계산 근거
+      </button>
+    </div>
+
+    <!-- 단가 설정 (옵션) -->
+    <div class="acc-wrap">
+      <div class="acc-header" onclick="toggleAcc()">
+        <span>⚙️ 수도 요금 단가 설정 (기본 톤당 1,300원)</span>
+        <span id="accArrow">▼</span>
+      </div>
+      <div id="accBody" class="acc-content">
+        <div style="font-size:11.5px; color:#64748b; margin-bottom:6px;">
+          * 포항시 가정용 수도요금 기준 (상·하수도/물이용부담금 포함 평균 톤당 약 1,300원)
+        </div>
+        <div class="slider-row">
+          <input type="range" id="priceRange" min="800" max="2500" step="50" value="1300" oninput="updateRate(this.value)">
+          <div style="font-weight:800; font-size:13px; min-width:85px; text-align:right;">
+            톤당 <span id="rateLabel">1,300</span>원
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 결과 리포트 (캡처 및 전송) -->
+    <div id="resWrap" class="res-wrapper">
+      <div id="captureTarget" class="res-capture-card">
+        <div class="res-head">
+          <div>
+            <div class="res-brand">포항세영누수탐지</div>
+            <div class="res-sub">수도계량기 회전 정밀 분석 리포트</div>
+          </div>
+          <div class="res-date" id="repDate"></div>
+        </div>
+
+        <div style="font-size:12px; color:#475569; margin-bottom:10px; background:#f8fafc; padding:7px 10px; border-radius:8px;">
+          📌 <b>구경/침:</b> <span id="repDial"></span><br>
+          ⏱️ <b>측정 소요:</b> <span id="repSec" style="color:#0284c7; font-weight:800;"></span>
+        </div>
+
+        <div class="res-grid">
+          <div class="res-box">
+            <div class="res-lbl">1시간 누수량</div>
+            <div class="res-num" id="rHour">0</div>
+            <div class="res-unit">리터 (L)</div>
+          </div>
+          <div class="res-box">
+            <div class="res-lbl">하루(24h) 누수량</div>
+            <div class="res-num" id="rDay">0</div>
+            <div class="res-unit">톤 (m³)</div>
+          </div>
+          <div class="res-box main">
+            <div class="res-lbl">한 달(30일) 예상 추가 수도요금</div>
+            <div class="res-num" id="rCost">0</div>
+            <div class="res-unit" id="rCostSub" style="margin-top:2px;">한 달 누적 약 0 톤 손실</div>
+          </div>
+        </div>
+
+        <div class="analogy-box">
+          <div class="analogy-item">
+            <span>2L 생수병 환산</span>
+            <span>하루 약 <b id="aBottle">0</b> 병 분량</span>
+          </div>
+          <div class="analogy-item">
+            <span>종이컵(180mL) 환산</span>
+            <span>1분당 약 <b id="aCup">0</b> 잔씩 누출</span>
+          </div>
+          <div class="analogy-item">
+            <span>욕조(200L) 기준</span>
+            <span>하루 약 <b id="aBath">0</b> 통 분량</span>
+          </div>
+        </div>
+
+        <div class="res-foot">
+          <span style="color:#64748b;">정밀 누수탐지 및 배관 보수공사</span>
+          <span class="res-tel">📞 010-2823-0482</span>
+        </div>
+      </div>
+
+      <button class="btn-save-img" onclick="saveImage()">
+        📸 결과 사진(이미지)으로 저장
+      </button>
+      <button class="btn-copy-txt" onclick="copyText()">
+        📋 고객 전송용 텍스트 복사 (문자/카톡)
+      </button>
+    </div>
+
+  </main>
+</div>
+
+<!-- 계산 근거 모달 -->
+<div id="bModal" class="modal-backdrop" onclick="closeModal(event)">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <span>💡 누수량 계산 공식 및 근거</span>
+      <button class="modal-x" onclick="closeModal()">✕</button>
+    </div>
+    <div style="font-size:12.5px; color:#475569; line-height:1.6;">
+      <b style="color:#0284c7;">1. 수도계량기 회전침 표준 규격 (KS)</b><br>
+      • ×0.0001 m³ (4번째 빨간 침) = <b>정확히 1.0 리터(L)</b><br>
+      • ×0.001 m³ (3번째 빨간 침) = <b>정확히 10.0 리터(L)</b><br>
+      • ×0.01 m³ (2번째 빨간 침) = <b>정확히 100.0 리터(L)</b><br><br>
+
+      <b style="color:#0284c7;">2. 물리적 유량 산출 공식</b>
+      <div class="basis-calc-box">
+        • 1회전 소요시간 = 총 측정시간(초) ÷ 바퀴수<br>
+        • 초당 누수량(L/s) = 기준 용량(L) ÷ 1회전 소요시간(초)<br>
+        • 1시간 누수량(L/h) = 초당 누수량 × 3,600초<br>
+        • 하루 누수량(톤) = (1시간 누수량 × 24) ÷ 1,000<br>
+        • 한 달 누수량(톤) = 하루 누수량 × 30일
+      </div>
+      <b style="color:#0284c7;">3. 예상 추가 요금 산정</b><br>
+      한 달 누수량에 포항시 상·하수도 단가(기본 1,300원/톤)를 곱하여 산출됩니다.
+    </div>
+    <button class="btn-save-img" style="margin-top:14px; height:42px;" onclick="closeModal()">확인 완료</button>
+  </div>
+</div>
+
+<script>
+  // 오늘 날짜
+  const now = new Date();
+  document.getElementById('headDate').innerText = `${now.getMonth()+1}.${now.getDate()}`;
+
+  // 모달 제어
+  function openModal() { document.getElementById('bModal').classList.add('open'); }
+  function closeModal() { document.getElementById('bModal').classList.remove('open'); }
+
+  // 바퀴 수 제어
+  let curRevs = 1;
+  function setRevs(rev, btn) {
+    curRevs = rev;
+    document.querySelectorAll('.rev-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('guideText').innerHTML = rev === 1 
+      ? "바늘이 0에서 시작해 <b>정확히 1바퀴</b> 돌 때 정지" 
+      : `바늘이 0에서 시작해 <b>정확히 ${rev}바퀴</b> 돌 때 정지 (정밀 측정)`;
+  }
+
+  // 계량기 구경별 옵션
+  const presets = {
+    home: {
+      tip: "🏠 가정용 표준: 4번째 빨간 침(1L) 측정 추천",
+      isLarge: false,
+      opts: [
+        { vol: 1.0, label: "×0.0001 m³ / 4번째 자리", sub: "1바퀴 = 1.0 L (1리터)", tag: "일반 누수", tagClass: "b-blue", def: true },
+        { vol: 10.0, label: "×0.001 m³ / 3번째 자리", sub: "1바퀴 = 10.0 L (10리터)", tag: "큰 누수", tagClass: "b-orange" },
+        { vol: 100.0, label: "×0.01 m³ / 2번째 자리", sub: "1바퀴 = 100.0 L (100리터)", tag: "대형 누수", tagClass: "b-red" }
+      ]
+    },
+    large: {
+      tip: "🏢 상가·대형: 4번째 자리(1L)가 없으므로 ×0.001(10L) 침부터 측정",
+      isLarge: true,
+      opts: [
+        { vol: 10.0, label: "×0.001 m³ / 최하위 침", sub: "1바퀴 = 10.0 L (10리터)", tag: "대형 기본침", tagClass: "b-blue", def: true },
+        { vol: 100.0, label: "×0.01 m³ / 2번째 자리", sub: "1바퀴 = 100.0 L (100리터)", tag: "대량 유출", tagClass: "b-orange" },
+        { vol: 1000.0, label: "×0.1 m³ / 1번째 침 (볼트만)", sub: "1바퀴 = 1,000 L (1톤)", tag: "메인관 파손", tagClass: "b-purple" }
+      ]
+    }
+  };
+
+  let curVol = 1.0;
+  let curDialName = "가정용 15A / ×0.0001 m³ (1L)";
+
+  function renderList(type) {
+    const p = presets[type];
+    const tipBox = document.getElementById('tipBox');
+    tipBox.className = `sub-tip ${p.isLarge ? 'large' : ''}`;
+    tipBox.innerText = p.tip;
+
+    const list = document.getElementById('dialList');
+    list.innerHTML = '';
+
+    p.opts.forEach(o => {
+      if (o.def) {
+        curVol = o.vol;
+        curDialName = `${type === 'home' ? '가정용' : '상가·대형'} ${o.label} (${o.vol}L)`;
+      }
+
+      const item = document.createElement('div');
+      item.className = `radio-item ${o.def ? 'active' : ''}`;
+      item.onclick = function() {
+        curVol = o.vol;
+        curDialName = `${type === 'home' ? '가정용' : '상가·대형'} ${o.label} (${o.vol}L)`;
+        document.querySelectorAll('.radio-item').forEach(el => el.classList.remove('active'));
+        item.classList.add('active');
+      };
+
+      item.innerHTML = `
+        <div class="radio-left">
+          <div class="radio-ring"><div class="radio-dot"></div></div>
+          <div>
+            <div class="item-label">${o.label} <span class="badge-tag ${o.tagClass}">${o.tag}</span></div>
+            <div class="item-sub">바늘 1바퀴 = <strong>${o.sub.replace('1바퀴 = ', '')}</strong></div>
+          </div>
+        </div>
+      `;
+      list.appendChild(item);
+    });
+  }
+
+  function switchMeter(type) {
+    document.getElementById('tHome').classList.toggle('active', type === 'home');
+    document.getElementById('tLarge').classList.toggle('active', type === 'large');
+    renderList(type);
+  }
+  renderList('home');
+
+  // 단가 아코디언
+  function toggleAcc() {
+    const b = document.getElementById('accBody');
+    const a = document.getElementById('accArrow');
+    const isShow = b.classList.contains('show');
+    b.classList.toggle('show', !isShow);
+    a.innerText = isShow ? '▼' : '▲';
+  }
+  function updateRate(v) {
+    document.getElementById('rateLabel').innerText = Number(v).toLocaleString();
+  }
+
+  // 스톱워치
+  let timerId = null, startT = 0, elapsedT = 0, isRun = false;
+  function fmtTimer(ms) {
+    const totSec = Math.floor(ms / 1000);
+    const m = Math.floor(totSec / 60);
+    const s = totSec % 60;
+    const cs = Math.floor((ms % 1000) / 10);
+    return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(cs).padStart(2,'0')}`;
+  }
+
+  function toggleTimer() {
+    const btn = document.getElementById('btnTimer');
+    const st = document.getElementById('timerStatus');
+
+    if (!isRun) {
+      isRun = true;
+      startT = Date.now() - elapsedT;
+      timerId = setInterval(() => {
+        elapsedT = Date.now() - startT;
+        document.getElementById('timeDisp').innerText = fmtTimer(elapsedT);
+      }, 10);
+
+      btn.innerText = curRevs === 1 ? "■ 1회전 완료 (정지)" : `■ ${curRevs}회전 완료 (정지)`;
+      btn.classList.add('running');
+      st.innerText = "측정 중...";
+      st.style.color = "#e11d48";
+    } else {
+      isRun = false;
+      clearInterval(timerId);
+
+      btn.innerText = "▶ 스톱워치 시작";
+      btn.classList.remove('running');
+      st.innerText = "완료";
+      st.style.color = "#0284c7";
+
+      document.getElementById('secInput').value = (elapsedT / 1000).toFixed(1);
+    }
+  }
+
+  function resetTimer() {
+    if (isRun) { clearInterval(timerId); isRun = false; }
+    elapsedT = 0;
+    document.getElementById('timeDisp').innerText = "00:00.00";
+    document.getElementById('timerStatus').innerText = "대기";
+    document.getElementById('timerStatus').style.color = "#94a3b8";
+    const btn = document.getElementById('btnTimer');
+    btn.innerText = "▶ 스톱워치 시작";
+    btn.classList.remove('running');
+  }
+
+  // 계산
+  let reportData = null;
+  function calculate() {
+    const secVal = parseFloat(document.getElementById('secInput').value);
+    if (!secVal || secVal <= 0) {
+      alert("스톱워치를 사용하거나 소요 시간(초)을 입력해주세요.");
+      return;
+    }
+
+    const secPerRev = secVal / curRevs;
+    const rate = parseInt(document.getElementById('priceRange').value, 10) || 1300;
+
+    const lps = curVol / secPerRev;
+    const lph = lps * 3600;
+    const lpd = lph * 24;
+    const tpd = lpd / 1000;
+    const tpm = tpd * 30;
+    const costMonth = Math.round(tpm * rate);
+
+    const bDay = Math.round(lpd / 2.0);
+    const cMin = Math.round((lph / 60) / 0.18);
+    const bathDay = (lpd / 200).toFixed(1);
+
+    const d = new Date();
+    const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+
+    document.getElementById('repDate').innerText = dateStr;
+    document.getElementById('repDial').innerText = curDialName;
+    const secDetail = curRevs === 1 ? `${secVal.toFixed(1)}초 (1회전)` : `총 ${secVal.toFixed(1)}초 (${curRevs}회전 측정 / 1회전당 ${secPerRev.toFixed(1)}초)`;
+    document.getElementById('repSec').innerText = secDetail;
+
+    document.getElementById('rHour').innerText = lph.toLocaleString('ko-KR', { maximumFractionDigits: 1 });
+    document.getElementById('rDay').innerText = tpd.toFixed(2);
+    document.getElementById('rCost').innerText = costMonth.toLocaleString('ko-KR') + "원";
+    document.getElementById('rCostSub').innerText = `한 달 누적 약 ${tpm.toFixed(1)} 톤(m³) 손실`;
+
+    document.getElementById('aBottle').innerText = bDay.toLocaleString();
+    document.getElementById('aCup').innerText = cMin.toLocaleString();
+    document.getElementById('aBath').innerText = bathDay;
+
+    const w = document.getElementById('resWrap');
+    w.style.display = 'flex';
+    w.scrollIntoView({ behavior: 'smooth' });
+
+    reportData = {
+      date: dateStr,
+      dial: curDialName,
+      sec: secDetail,
+      lph: lph.toFixed(1),
+      tpd: tpd.toFixed(2),
+      tpm: tpm.toFixed(1),
+      cost: costMonth.toLocaleString('ko-KR'),
+      bDay: bDay.toLocaleString(),
+      cMin: cMin.toLocaleString()
+    };
+  }
+
+  // 📸 이미지 저장
+  function saveImage() {
+    const el = document.getElementById('captureTarget');
+    if (!el) return;
+
+    html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#ffffff" }).then(canvas => {
+      const link = document.createElement('a');
+      const d = new Date();
+      const timeTag = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}_${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}`;
+      link.download = `포항세영누수_누수진단_${timeTag}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      alert("📸 진단 결과 사진이 저장되었습니다!\n스마트폰 갤러리를 확인하세요.");
+    }).catch(err => alert("저장 실패: " + err));
+  }
+
+  // 텍스트 복사
+  function copyText() {
+    if (!reportData) return;
+    const msg = `[포항세영누수탐지 누수량 계산 결과]
+--------------------------------
+■ 계량기 회전 측정 분석
+- 측정일시: ${reportData.date}
+- 측정 기준: ${reportData.dial}
+- 측정 소요: ${reportData.sec}
+- 1시간 누수량: 약 ${reportData.lph} L
+- 하루 누수량: 약 ${reportData.tpd} 톤 (m³)
+- 한 달 예상 누수량: 약 ${reportData.tpm} 톤
+
+■ 예상 손실 및 피해 환산
+- 한 달 예상 추가 수도요금: 약 ${reportData.cost}원 상당
+- 2L 생수병 기준: 하루 약 ${reportData.bDay}병 누출
+- 일반 종이컵 기준: 1분당 약 ${reportData.cMin}잔 분량 누출
+
+누수로 인한 시설 피해 및 요금 과다 청구를 방지하기 위해 신속한 배관 탐지 및 보수를 권장합니다.
+--------------------------------
+포항세영누수탐지
+문의전화: 010-2823-0482`;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(msg).then(() => {
+        alert("✅ 계산 결과가 복사되었습니다!\n문자나 카카오톡에 바로 붙여넣기 하세요.");
+      }).catch(() => fbCopy(msg));
+    } else {
+      fbCopy(msg);
+    }
+  }
+
+  function fbCopy(t) {
+    const a = document.createElement("textarea");
+    a.value = t;
+    document.body.appendChild(a);
+    a.select();
+    document.execCommand("copy");
+    document.body.removeChild(a);
+    alert("✅ 계산 결과가 복사되었습니다!\n문자나 카카오톡에 바로 붙여넣기 하세요.");
+  }
+</script>
+</body>
+</html>
