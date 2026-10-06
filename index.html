@@ -4,22 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   
-  <!-- 진짜 앱(전체화면 Standalone) 설정 -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="누수계산기">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#0284c7">
 
- <!-- 정식 웹앱 매니페스트 & 서비스워커 연결 -->
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="./manifest.json">
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
+      navigator.serviceWorker.register('./sw.js', { scope: './' });
     }
   </script>
-  
-  <title>포항세영누수탐지</title>
+
+  <title>포항세영누수탐지 - 누수량 계산기</title>
   
   <!-- 이미지 즉석 저장 엔진 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -35,7 +33,6 @@
       font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", Roboto, sans-serif;
     }
 
-    /* 브라우저 고무줄 스크롤 방지 & 전체화면 레이아웃 */
     html, body {
       width: 100%;
       height: 100%;
@@ -55,7 +52,7 @@
       position: relative;
     }
 
-    /* 앱 최상단 네이티브 바 (노치/카메라 구멍 안전영역 자동계산) */
+    /* 앱 상단 헤더 */
     .app-header {
       background: #0284c7;
       color: #ffffff;
@@ -164,7 +161,7 @@
       box-shadow: 0 1px 4px rgba(0,0,0,0.08);
     }
 
-    /* 눈금 안내 */
+    /* 안내 문구 */
     .sub-tip {
       font-size: 11.5px;
       padding: 7px 10px;
@@ -254,34 +251,60 @@
     .b-red { background: #fee2e2; color: #b91c1c; }
     .b-purple { background: #f3e8ff; color: #7e22ce; }
 
-    /* 바퀴 수 세그먼트 */
+    /* 바퀴 수 세그먼트 (미세누수 1/4, 반바퀴 포함) */
     .rev-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
       background: #f8fafc;
-      padding: 8px 12px;
-      border-radius: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
       border: 1px solid #e2e8f0;
       margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .rev-title-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .rev-label {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #334155;
     }
     .rev-btn-wrap {
       display: flex;
       gap: 5px;
+      overflow-x: auto;
+      padding-bottom: 2px;
     }
     .rev-pill {
-      padding: 5px 12px;
-      border-radius: 16px;
+      flex: 1;
+      min-width: 62px;
+      padding: 6px 0;
+      text-align: center;
+      border-radius: 8px;
       border: 1px solid #cbd5e1;
       background: #ffffff;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 700;
       color: #475569;
       cursor: pointer;
+      white-space: nowrap;
     }
     .rev-pill.active {
       background: #0284c7;
       border-color: #0284c7;
+      color: #ffffff;
+      box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+    }
+    .rev-pill.fine {
+      border-color: #fdba74;
+      color: #c2410c;
+    }
+    .rev-pill.fine.active {
+      background: #ea580c;
+      border-color: #ea580c;
       color: #ffffff;
     }
 
@@ -303,9 +326,12 @@
       text-shadow: 0 0 14px rgba(56, 189, 248, 0.4);
     }
     .timer-subtext {
-      font-size: 11.5px;
+      font-size: 12px;
       color: #cbd5e1;
       margin-top: 4px;
+    }
+    .timer-subtext b {
+      color: #38bdf8;
     }
 
     /* 스톱워치 버튼 */
@@ -377,7 +403,7 @@
       font-size: 14px;
     }
 
-    /* 액션 버튼들 */
+    /* 액션 버튼 */
     .main-btn-row {
       display: flex;
       gap: 8px;
@@ -456,7 +482,7 @@
       flex: 1;
     }
 
-    /* 결과 카드 (캡처용) */
+    /* 결과 카드 */
     .res-wrapper {
       display: none;
       flex-direction: column;
@@ -567,7 +593,6 @@
       font-size: 13px;
     }
 
-    /* 하단 실행 버튼 */
     .btn-save-img {
       width: 100%;
       height: 48px;
@@ -656,7 +681,7 @@
 <body>
 
 <div class="app-screen">
-  <!-- 스마트폰 상단 네이티브 스타일 헤더 -->
+  <!-- 스마트폰 상단 헤더 -->
   <header class="app-header">
     <div class="app-header-left">
       <span class="app-name">포항세영누수탐지</span>
@@ -665,7 +690,6 @@
     <div class="header-badge" id="headDate"></div>
   </header>
 
-  <!-- 메인 스크롤 콘텐츠 -->
   <main class="app-content">
 
     <!-- STEP 1. 계량기 구경 및 침 선택 -->
@@ -689,7 +713,7 @@
       <div id="dialList" class="radio-list"></div>
     </section>
 
-    <!-- STEP 2. 스톱워치 측정 -->
+    <!-- STEP 2. 스톱워치 측정 (1/4바퀴, 반바퀴 탑재) -->
     <section class="sec-card">
       <div class="sec-head">
         <h2 class="sec-title">
@@ -698,13 +722,18 @@
         <span style="font-size:11.5px; color:#94a3b8; font-weight:700;" id="timerStatus">대기</span>
       </div>
 
-      <!-- 회전수 선택 -->
+      <!-- 측정 모드 5종 선택 칩 -->
       <div class="rev-row">
-        <span style="font-size:12.5px; font-weight:700; color:#334155;">🔄 측정 바퀴 수</span>
+        <div class="rev-title-bar">
+          <span class="rev-label">🔄 측정 회전수 (느린 누수는 1/4 or 반바퀴)</span>
+          <span id="revBadgeNote" style="font-size:11px; color:#0284c7; font-weight:bold;">표준 (1바퀴)</span>
+        </div>
         <div class="rev-btn-wrap">
-          <button class="rev-pill active" onclick="setRevs(1, this)">1바퀴</button>
-          <button class="rev-pill" onclick="setRevs(3, this)">3바퀴(정밀)</button>
-          <button class="rev-pill" onclick="setRevs(5, this)">5바퀴(고속)</button>
+          <button class="rev-pill fine" onclick="setRevs(0.25, '1/4바퀴 (90°)', '바늘이 12시에서 3시 방향까지 돌 때 정지 (초미세 누수)', this)">1/4바퀴</button>
+          <button class="rev-pill fine" onclick="setRevs(0.5, '반바퀴 (180°)', '바늘이 12시에서 6시 방향까지 돌 때 정지 (미세 누수)', this)">반바퀴</button>
+          <button class="rev-pill active" onclick="setRevs(1, '1바퀴 (표준)', '바늘이 0에서 시작해 정확히 1바퀴 돌 때 정지', this)">1바퀴</button>
+          <button class="rev-pill" onclick="setRevs(3, '3바퀴 (정밀)', '바늘이 정확히 3바퀴 돌 때 정지 (평균 1바퀴 시간 역산)', this)">3바퀴</button>
+          <button class="rev-pill" onclick="setRevs(5, '5바퀴 (고속)', '바늘이 쌩쌩 돌 때 5바퀴 돌려놓고 정지 (오차 최소화)', this)">5바퀴</button>
         </div>
       </div>
 
@@ -837,10 +866,11 @@
       • ×0.001 m³ (3번째 빨간 침) = <b>정확히 10.0 리터(L)</b><br>
       • ×0.01 m³ (2번째 빨간 침) = <b>정확히 100.0 리터(L)</b><br><br>
 
-      <b style="color:#0284c7;">2. 물리적 유량 산출 공식</b>
+      <b style="color:#0284c7;">2. 미세 누수 부분 회전 산출 공식</b>
       <div class="basis-calc-box">
-        • 1회전 소요시간 = 총 측정시간(초) ÷ 바퀴수<br>
-        • 초당 누수량(L/s) = 기준 용량(L) ÷ 1회전 소요시간(초)<br>
+        • 1/4바퀴(0.25회전) 측정 시: 1회전 소요시간 = 측정시간 × 4<br>
+        • 반바퀴(0.5회전) 측정 시: 1회전 소요시간 = 측정시간 × 2<br>
+        • 초당 누수량(L/s) = 기준 용량(L) ÷ 1회전 환산시간(초)<br>
         • 1시간 누수량(L/h) = 초당 누수량 × 3,600초<br>
         • 하루 누수량(톤) = (1시간 누수량 × 24) ÷ 1,000<br>
         • 한 달 누수량(톤) = 하루 누수량 × 30일
@@ -853,7 +883,7 @@
 </div>
 
 <script>
-  // 오늘 날짜
+  // 날짜
   const now = new Date();
   document.getElementById('headDate').innerText = `${now.getMonth()+1}.${now.getDate()}`;
 
@@ -861,15 +891,18 @@
   function openModal() { document.getElementById('bModal').classList.add('open'); }
   function closeModal() { document.getElementById('bModal').classList.remove('open'); }
 
-  // 바퀴 수 제어
-  let curRevs = 1;
-  function setRevs(rev, btn) {
+  // 회전수/부분회전 제어
+  let curRevs = 1.0;
+  let curRevTitle = "1바퀴 (표준)";
+
+  function setRevs(rev, title, guide, btn) {
     curRevs = rev;
+    curRevTitle = title;
     document.querySelectorAll('.rev-pill').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    document.getElementById('guideText').innerHTML = rev === 1 
-      ? "바늘이 0에서 시작해 <b>정확히 1바퀴</b> 돌 때 정지" 
-      : `바늘이 0에서 시작해 <b>정확히 ${rev}바퀴</b> 돌 때 정지 (정밀 측정)`;
+
+    document.getElementById('revBadgeNote').innerText = title;
+    document.getElementById('guideText').innerHTML = guide;
   }
 
   // 계량기 구경별 옵션
@@ -975,7 +1008,7 @@
         document.getElementById('timeDisp').innerText = fmtTimer(elapsedT);
       }, 10);
 
-      btn.innerText = curRevs === 1 ? "■ 1회전 완료 (정지)" : `■ ${curRevs}회전 완료 (정지)`;
+      btn.innerText = `■ ${curRevTitle} 완료 (정지)`;
       btn.classList.add('running');
       st.innerText = "측정 중...";
       st.style.color = "#e11d48";
@@ -1012,6 +1045,7 @@
       return;
     }
 
+    // 1회전 소요시간으로 정밀 역산
     const secPerRev = secVal / curRevs;
     const rate = parseInt(document.getElementById('priceRange').value, 10) || 1300;
 
@@ -1031,7 +1065,16 @@
 
     document.getElementById('repDate').innerText = dateStr;
     document.getElementById('repDial').innerText = curDialName;
-    const secDetail = curRevs === 1 ? `${secVal.toFixed(1)}초 (1회전)` : `총 ${secVal.toFixed(1)}초 (${curRevs}회전 측정 / 1회전당 ${secPerRev.toFixed(1)}초)`;
+
+    // 측정 정보 상세 텍스트
+    let secDetail = "";
+    if (curRevs < 1.0) {
+      secDetail = `${curRevTitle} ${secVal.toFixed(1)}초 소요 (1회전 환산: 약 ${secPerRev.toFixed(1)}초)`;
+    } else if (curRevs === 1.0) {
+      secDetail = `1회전 ${secVal.toFixed(1)}초`;
+    } else {
+      secDetail = `총 ${secVal.toFixed(1)}초 (${curRevs}회전 측정 / 1회전당 ${secPerRev.toFixed(1)}초)`;
+    }
     document.getElementById('repSec').innerText = secDetail;
 
     document.getElementById('rHour').innerText = lph.toLocaleString('ko-KR', { maximumFractionDigits: 1 });
