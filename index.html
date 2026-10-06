@@ -10,6 +10,10 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#0284c7">
 
+  <!-- 세련된 전용 바로가기 아이콘 (수도계량기 + 물방울 그래픽) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230284c7'/%3E%3Cstop offset='100%25' stop-color='%230369a1'/%3E%3C/linearGradient%3E%3Cfilter id='drop' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeDropShadow dx='0' dy='4' stdDeviation='4' flood-color='%23000' flood-opacity='0.25'/%3E%3C/filter%3E%3C/defs%3E%3Crect width='192' height='192' rx='42' fill='url(%23bg)'/%3E%3Ccircle cx='96' cy='96' r='68' fill='%23ffffff' filter='url(%23drop)'/%3E%3Ccircle cx='96' cy='96' r='58' fill='none' stroke='%23e2e8f0' stroke-width='4'/%3E%3Cpath d='M96 52 C96 52 70 88 70 108 C70 122 82 134 96 134 C110 134 122 122 122 108 C122 88 96 52 96 52 Z' fill='%230284c7'/%3E%3Ccircle cx='86' cy='102' r='5' fill='%23ffffff' opacity='0.7'/%3E%3Cpath d='M96 96 L112 80' stroke='%23e11d48' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='96' cy='96' r='4' fill='%23e11d48'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230284c7'/%3E%3Cstop offset='100%25' stop-color='%230369a1'/%3E%3C/linearGradient%3E%3Cfilter id='drop' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeDropShadow dx='0' dy='4' stdDeviation='4' flood-color='%23000' flood-opacity='0.25'/%3E%3C/filter%3E%3C/defs%3E%3Crect width='192' height='192' rx='42' fill='url(%23bg)'/%3E%3Ccircle cx='96' cy='96' r='68' fill='%23ffffff' filter='url(%23drop)'/%3E%3Ccircle cx='96' cy='96' r='58' fill='none' stroke='%23e2e8f0' stroke-width='4'/%3E%3Cpath d='M96 52 C96 52 70 88 70 108 C70 122 82 134 96 134 C110 134 122 122 122 108 C122 88 96 52 96 52 Z' fill='%230284c7'/%3E%3Ccircle cx='86' cy='102' r='5' fill='%23ffffff' opacity='0.7'/%3E%3Cpath d='M96 96 L112 80' stroke='%23e11d48' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='96' cy='96' r='4' fill='%23e11d48'/%3E%3C/svg%3E">
+
   <link rel="manifest" href="./manifest.json">
   <script>
     if ('serviceWorker' in navigator) {
@@ -19,7 +23,6 @@
 
   <title>포항세영누수탐지 - 누수량 및 포항요금 정밀 계산기</title>
   
-  <!-- 이미지 즉석 저장 엔진 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <style>
@@ -52,7 +55,6 @@
       position: relative;
     }
 
-    /* 상단 헤더 */
     .app-header {
       background: #0284c7;
       color: #ffffff;
@@ -91,7 +93,6 @@
       border-radius: 20px;
     }
 
-    /* 본체 스크롤 컨테이너 */
     .app-content {
       flex: 1;
       padding: 14px;
@@ -135,7 +136,6 @@
       font-weight: 800;
     }
 
-    /* 구경 탭 */
     .seg-tabs {
       display: flex;
       background: #f1f5f9;
@@ -175,7 +175,6 @@
       border: 1px solid #fef08a;
     }
 
-    /* 선택 목록 */
     .radio-list {
       display: flex;
       flex-direction: column;
@@ -249,7 +248,6 @@
     .b-red { background: #fee2e2; color: #b91c1c; }
     .b-purple { background: #f3e8ff; color: #7e22ce; }
 
-    /* 회전수 모드 칩 */
     .rev-row {
       background: #f8fafc;
       padding: 10px 12px;
@@ -306,7 +304,6 @@
       color: #ffffff;
     }
 
-    /* 타이머 디스플레이 */
     .digital-timer {
       background: #0a1120;
       border-radius: 14px;
@@ -399,7 +396,6 @@
       font-size: 14px;
     }
 
-    /* 실행 버튼 */
     .main-btn-row {
       display: flex;
       gap: 8px;
@@ -457,7 +453,6 @@
       color: #15803d;
     }
 
-    /* 결과 카드 */
     .res-wrapper {
       display: none;
       flex-direction: column;
@@ -532,7 +527,6 @@
       color: #16a34a;
     }
 
-    /* 요금 세부 내역 박스 */
     .bill-breakdown {
       background: #f8fafc;
       border: 1px solid #e2e8f0;
@@ -622,7 +616,6 @@
       gap: 6px;
     }
 
-    /* 모달 */
     .modal-backdrop {
       display: none;
       position: fixed;
@@ -689,7 +682,6 @@
 
   <main class="app-content">
 
-    <!-- STEP 1. 계량기 구경 및 침 선택 -->
     <section class="sec-card">
       <div class="sec-head">
         <h2 class="sec-title">
@@ -709,7 +701,6 @@
       <div id="dialList" class="radio-list"></div>
     </section>
 
-    <!-- STEP 2. 스톱워치 측정 (1/4바퀴, 반바퀴 탑재) -->
     <section class="sec-card">
       <div class="sec-head">
         <h2 class="sec-title">
@@ -752,7 +743,6 @@
       </div>
     </section>
 
-    <!-- 계산 & 근거설명 버튼 -->
     <div class="main-btn-row">
       <button class="btn-calc" onclick="calculate()">
         🧮 누수량 및 포항요금 계산하기
@@ -762,13 +752,11 @@
       </button>
     </div>
 
-    <!-- 포항 요율 안내 배너 -->
     <div class="pohang-note-box">
       <span>🏛️ <b>포항시 수도사업소 공식 요율 검증 완료</b></span>
       <span>1,296톤=264만원 / 341톤=66만원 일치</span>
     </div>
 
-    <!-- 결과 카드 -->
     <div id="resWrap" class="res-wrapper">
       <div id="captureTarget" class="res-capture-card">
         <div class="res-head">
@@ -802,7 +790,6 @@
           </div>
         </div>
 
-        <!-- 포항시 세부 요금 분할 내역 -->
         <div class="bill-breakdown">
           <div class="bill-row">
             <span>상수도 요금 (기본료 포함)</span>
@@ -854,7 +841,6 @@
   </main>
 </div>
 
-<!-- 계산 근거 모달 -->
 <div id="bModal" class="modal-backdrop" onclick="closeModal(event)">
   <div class="modal-card" onclick="event.stopPropagation()">
     <div class="modal-head">
@@ -979,7 +965,6 @@
   }
   renderList('home');
 
-  // 스톱워치
   let timerId = null, startT = 0, elapsedT = 0, isRun = false;
   function fmtTimer(ms) {
     const totSec = Math.floor(ms / 1000);
@@ -1029,23 +1014,18 @@
     btn.classList.remove('running');
   }
 
-  // ==========================================================
-  // 포항시 공식 요금소 100% 일치 엔진 (341톤=66만 / 1,296톤=264만 완벽 보정)
-  // ==========================================================
   function calcPohangBill(tons, isLarge) {
     if (tons <= 0) return { water: 0, sewer: 0, basin: 0, total: 0, avgRate: 0 };
 
     let waterCost = 0;
     let sewerCost = 0;
-    const basinRate = 170; // 물이용부담금
+    const basinRate = 170;
     const basinCost = Math.round(tons * basinRate);
 
     if (!isLarge) {
-      // 1. 포항시 가정용
-      const baseMeter = 990; // 15A 기본료
+      const baseMeter = 990;
       waterCost = baseMeter + Math.round(tons * 625);
 
-      // 하수도 누진제 (31톤 초과 최고누진 1,240원)
       if (tons <= 20) {
         sewerCost = Math.round(tons * 480);
       } else if (tons <= 30) {
@@ -1054,8 +1034,7 @@
         sewerCost = Math.round((20 * 480) + (10 * 850) + ((tons - 30) * 1240));
       }
     } else {
-      // 2. 포항시 일반용(상가·대형)
-      const baseMeter = 8350; // 40A 기본료
+      const baseMeter = 8350;
       waterCost = baseMeter + Math.round(tons * 1150);
 
       if (tons <= 100) {
@@ -1079,7 +1058,6 @@
     };
   }
 
-  // 계산 실행
   let reportData = null;
   function calculate() {
     const secVal = parseFloat(document.getElementById('secInput').value);
@@ -1096,7 +1074,6 @@
     const tpd = lpd / 1000;
     const tpm = tpd * 30;
 
-    // 포항시 누진세 계산 적용
     const bill = calcPohangBill(tpm, isLargeMode);
 
     const bDay = Math.round(lpd / 2.0);
@@ -1124,7 +1101,6 @@
     document.getElementById('rCost').innerText = bill.total.toLocaleString('ko-KR') + "원";
     document.getElementById('rCostSub').innerText = `한 달 누적 약 ${tpm.toFixed(1)} 톤(m³) 손실`;
 
-    // 세부 청구내역 표시
     document.getElementById('billWater').innerText = bill.water.toLocaleString('ko-KR') + "원";
     document.getElementById('billSewer').innerText = bill.sewer.toLocaleString('ko-KR') + "원";
     document.getElementById('billBasin').innerText = bill.basin.toLocaleString('ko-KR') + "원";
@@ -1156,7 +1132,6 @@
     };
   }
 
-  // 📸 이미지 저장
   function saveImage() {
     const el = document.getElementById('captureTarget');
     if (!el) return;
@@ -1172,7 +1147,6 @@
     }).catch(err => alert("저장 실패: " + err));
   }
 
-  // 텍스트 복사
   function copyText() {
     if (!reportData) return;
     const msg = `[포항세영누수탐지 누수량 분석 리포트]
